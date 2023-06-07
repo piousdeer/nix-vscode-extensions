@@ -28,20 +28,15 @@ jobs:
       - name: Restore and cache Nix store
         uses: actions/cache@v3.3.0
         with:
-          key: ${{ runner.os }}-nix-${{ hashfiles('**/flake.nix', '**/flake.lock') }}
+          key: ${{ runner.os }}-nix-${{ hashfiles('**/flake.nix', '**/flake.lock', '**.hs') }}
           path: /home/runner/nix
           restore-keys: |
-            ${{ runner.os }}-nix-${{ hashfiles('**/flake.nix', '**/flake.lock') }}
+            ${{ runner.os }}-nix-${{ hashfiles('**/flake.nix', '**/flake.lock', '**.hs') }}
             ${{ runner.os }}-nix-
       - name: Run updater
-        uses: nick-fields/retry@v2
         env:
           CONFIG: ".github/config.yaml"
-        with:
-          timeout_minutes: 360
-          retry_wait_seconds: 300
-          max_attempts: 6
-          command: nix run hs/#updateExtensions
+        run: nix run hs/#updateExtensions
       - name: Commit and push changes
         run: |
           git config user.name github-actions
